@@ -51,3 +51,11 @@ npm run deploy
 - **Network deployed to:** Midnight Preview Network (`preview`)
 - **Deployed Contract Address:** `03a1050042011a60fedc5885d091dfd62b1e576adffbe814b6cc875d1426be03`
 - **Wallet Address used:** `mn_addr_preview19sxp7qv8ee3n9fpkntw40f80kyanqnxg4842xhg57utq49kpssfqyy3q5t`
+
+## Screenshots
+
+### 1. Successful Compile Output
+![Compile Output](./compile-output.png)
+
+### 2. Successful Deployment Output
+![Deployment Output](./deploy-output.png)
