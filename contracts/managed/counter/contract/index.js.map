@@ -1,0 +1,8 @@
+{
+  "version": 3,
+  "file": "index.js",
+  "sourceRoot": "../../../../",
+  "sources": ["contracts/counter.compact"],
+  "names": [],
+  "mappings": ";;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;EAKA;;;;;;;;;;MAMA,AAAA,aAEC;;;;;cAF4B,QAAwB;;;;;;;;;;;yCAAxB,QAAwB;;;;;;;;;+CAAxB,QAAwB;;;OAEpD;;;;GACA;EATD;;;;;;;;;;;;;;;;;;;;;;;;;;IAIA;;;;;;;;;yEAAwC;;;;;;;GAKvC;EAHD,AAAA,gBAEC,4BAF4B,QAAwB;IACjD;;;;;;;2HAAmB,QAAM;;yEAAlB;;GACV;;;;;;;;;;;;;;;;IAJD;qCAAA;;;;;;;;;;;0GAAwC;KAAA;;;;;;;;;;"
+}
