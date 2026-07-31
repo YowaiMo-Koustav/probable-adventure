@@ -1,0 +1,14 @@
+// PUBLIC VS PRIVATE EXPLANATION:
+// Public state (ledger): The 'message' variable is public and visible to everyone.
+// Private state (witness): The 'secret' variable is a private witness.
+// We use disclose() to explicitly reveal the secret to the ledger.
+
+pragma language_version >= 0.23;
+
+import CompactStandardLibrary;
+
+export ledger message: Opaque<"string">;
+
+export circuit reveal_secret(secret: Opaque<"string">): [] {
+    message = disclose(secret);
+}
