@@ -49,5 +49,5 @@ npm run deploy
 
 ## Deployment Details
 - **Network deployed to:** Midnight Preview Network (`preview`)
-- **Deployed Contract Address:** `b0c5e3eb4214be84f54073325da8ee7eaf249ad87e1b607ab649cf8f13bb4b28`
+- **Deployed Contract Address:** `03a1050042011a60fedc5885d091dfd62b1e576adffbe814b6cc875d1426be03`
 - **Wallet Address used:** `mn_addr_preview19sxp7qv8ee3n9fpkntw40f80kyanqnxg4842xhg57utq49kpssfqyy3q5t`
