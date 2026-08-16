@@ -1,61 +1,62 @@
-# Midnight Builder Challenge - Level 1
+# Private Secret Santa
+![CI](https://github.com/YowaiMo-Koustav/probable-adventure/actions/workflows/ci.yml/badge.svg)
+> Secure, on-chain Secret Santa assignments using Zero-Knowledge proofs.
 
-This repository contains my solution to Level 1 of the Midnight Builder Challenge. It features a zero-knowledge Counter Smart Contract written in Compact for the Midnight Network.
+## Live Demo
+[Live URL - TO BE ADDED BY USER]
 
-## Initial Product Idea: Private Secret Santa
-My initial product idea is a **Private Secret Santa** application. Participants can register for a gift exchange event on-chain. The assignments (who gives a gift to whom) are computed and verified on-chain using zero-knowledge proofs, meaning nobody's assignment is revealed to the public or to the central organizer. The public ledger only stores the list of participants and whether they have securely received their assignment, while the actual pairing is kept entirely private as a witness.
+## Contract Address
+| Network | Address |
+|----------|----------------------------------|
+| Preprod | [CONTRACT ADDRESS — TO BE ADDED] |
 
-## Public State vs Private Witness
-In Midnight, applications have a fundamental separation between what is public and what is private:
-- **Public State (`ledger`)**: Variables defined in the `ledger` block are visible to everyone on the network.
-- **Private Witness**: The `witness` (or arguments passed to a circuit) represents private user data. This data never leaves the user's local machine.
-- **The `disclose()` function**: We use `disclose()` deliberately inside circuits to explicitly move data from the private domain into the public ledger. By default, everything remains private unless `disclose()` is explicitly called.
+## What This Does
+The Private Secret Santa application solves the common problem of organizing a gift exchange securely and trustlessly. Users register on-chain to participate. Once assignments are decided, each user submits a zero-knowledge proof to the Midnight network proving that their assigned "giftee" is a valid participant, without ever revealing who that person is. 
 
-## Setup Instructions (How to run locally)
+## Privacy Model
+- **What is PUBLIC:** The list of registered participants and a flag indicating whether they have received a valid assignment.
+- **What is PRIVATE:** The actual pairing/assignment (who gives a gift to whom).
+- **What the user PROVES without revealing:** That they are a registered participant and that their assigned person is also a registered participant.
 
-### Prerequisites
-- [Node.js v22](https://nodejs.org/)
-- [Docker](https://www.docker.com/) (for the local proof server)
+## Privacy Claim
+An on-chain observer sees that Alice and Bob are participants, and sees that Alice has successfully secured her assignment. The observer **cannot** see that Alice was assigned to Bob.
+
+## Tech Stack
+- Midnight Network
+- Compact Language
+- Midnight.js SDK
+- React & Vite
+- Lace Wallet
+
+## Prerequisites
+- [Lace wallet](https://www.lace.io/) installed and configured for Midnight Preprod
+- Node.js v22
+- [Docker](https://www.docker.com/) (if running local proof server)
 - [Compact CLI](https://docs.midnight.network/develop/tutorial/building/prereqs#install-the-compact-compiler)
 
-### 1. Install Dependencies
+## Setup & Run Locally
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/YowaiMo-Koustav/probable-adventure.git
+   cd probable-adventure
+   ```
+2. **Install dependencies:**
+   ```bash
+   npm install
+   ```
+3. **Run the local app:**
+   ```bash
+   npm run dev
+   ```
+
+## Run Tests
+Command to run the test suite to verify the logic and privacy boundaries:
 ```bash
-npm install
+npm test
 ```
 
-### 2. Start the Local Proof Server
-Start the local Midnight proof server using Docker:
-```bash
-docker compose up -d
-```
+## CI/CD
+Our continuous integration pipeline uses GitHub Actions to automatically run on every push and pull request to the `main` branch. It installs all dependencies, compiles the Compact smart contract to ensure there are no syntax or privacy leakage errors, and runs the test suite.
 
-### 3. Compile the Contract
-Compile the Compact smart contract to generate the ZK circuits and keys in the `contracts/managed/` directory:
-```bash
-npm run compile
-```
-
-### 4. Run Tests
-Execute the test suite to verify circuit logic, state transitions, and private input isolation:
-```bash
-npx tsx tests/counter.test.ts
-```
-
-### 5. Deploy to Local Devnet
-Deploy the contract to the local undeployed network:
-```bash
-npm run deploy
-```
-
-## Deployment Details
-- **Network deployed to:** Midnight Preview Network (`preview`)
-- **Deployed Contract Address:** `03a1050042011a60fedc5885d091dfd62b1e576adffbe814b6cc875d1426be03`
-- **Wallet Address used:** `mn_addr_preview19sxp7qv8ee3n9fpkntw40f80kyanqnxg4842xhg57utq49kpssfqyy3q5t`
-
-## Screenshots
-
-### 1. Successful Compile Output
-![Compile Output](./compile-output.png)
-
-### 2. Successful Deployment Output
-![Deployment Output](./deploy-output.png)
+## Product Proposal
+See [PROPOSAL.md](./PROPOSAL.md) for more details on the product design, data model, and Mainnet feasibility.

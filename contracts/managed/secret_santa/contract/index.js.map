@@ -1,0 +1,8 @@
+{
+  "version": 3,
+  "file": "index.js",
+  "sourceRoot": "../../../../",
+  "sources": ["contracts/secret_santa.compact"],
+  "names": [],
+  "mappings": ";;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;EAKA;;;;;;;;;;MASA,AAAA,QAEC;;;;;cAFuB,SAAkB;;;;;;;;;;;;;;;;;;yCAAlB,SAAkB;;;;;;;qEAAlB,SAAkB;;;OAEzC;MAID,AAAA,kBAUC;;;;;cAViC,SAAkB;cAAE,aAAsB;;;;;;;;;;;;;;;;;;;;;;;;;yCAA1C,SAAkB,+BAAE,aAAsB;;;;;;;;;oDAA1C,SAAkB;oDAAE,aAAsB;;;OAU3E;;;;;;;;;;GACA;EA1BD;;;;;;;;;;;;;;;;;;;;;;;;;;;;IAKA;;;;;;;;;;yEAAqD;IACrD;;;;;;;;;;yEAA4D;;;;;;;GAoB3D;EAjBD,AAAA,WAEC,4BAFuB,SAAkB;UACtC,KAAY;IAAZ;;;;;;;;;;2HAA6B,SAAO;;;2HAApC,KAAY;;;wEAAA;;GACf;EAID,AAAA,qBAUC,4BAViC,SAAkB,EAAE,aAAsB;oDAEjE;;;;;;;;;;;2KAA6B,SAAO;;;;yHAAxB;;UAOnB,KAAmB;IAAnB;;;;;;;;;;2HAAoC,SAAO;;;2HAA3C,KAAmB;;;wEAAA;;GACtB;;;;;;;;;;;;;;;;IApBD;;;;;uCAAA;;;;;;;;;;;;;;;;4GAAqD;;;;;;uCAArD;;;;;;;;;;;;4GAAqD;;;;;;;;;;;;;;uCAArD;;;;;;;;;;;;;;;4GAAqD;;;;;;;;;;;;;;uCAArD;;;;;;;;;;;;;;;;;4GAAqD;;;;;;;;;KAAA;IACrD;;;;;uCAAA;;;;;;;;;;;;;;;;4GAA4D;;;;;;uCAA5D;;;;;;;;;;;;4GAA4D;;;;;;;;;;;;;;uCAA5D;;;;;;;;;;;;;;;4GAA4D;;;;;;;;;;;;;;uCAA5D;;;;;;;;;;;;;;;;;4GAA4D;;;;;;;;;KAAA;;;;;;;;;;"
+}
