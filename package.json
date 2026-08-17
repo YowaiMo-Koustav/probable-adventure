@@ -6,6 +6,7 @@
   "author": "",
   "license": "MIT",
   "scripts": {
+    "dev": "vite",
     "compile": "compact compile contracts/secret_santa.compact contracts/managed/secret_santa",
     "build": "npx tsc --noEmit || true",
     "setup": "npx tsx scripts/setup.ts",

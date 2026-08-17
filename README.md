@@ -8,7 +8,9 @@
 ## Contract Address
 | Network | Address |
 |----------|----------------------------------|
-| Preprod | [CONTRACT ADDRESS — TO BE ADDED] |
+| Local Devnet | e21c8653fc074e70e367461a22b11b831793cb9e8d533e9bc5ce5b171ab447b8 |
+
+> *Note: Deployed to local devnet. Deployment to Preprod via CLI was impossible due to a known SDK bug causing endless `Wallet.Sync` Effect errors and RPC `Normal Closure` timeouts during the initial genesis block sync for new wallets.*
 
 ## What This Does
 The Private Secret Santa application solves the common problem of organizing a gift exchange securely and trustlessly. Users register on-chain to participate. Once assignments are decided, each user submits a zero-knowledge proof to the Midnight network proving that their assigned "giftee" is a valid participant, without ever revealing who that person is. 

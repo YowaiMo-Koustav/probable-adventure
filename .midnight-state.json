@@ -1,11 +1,17 @@
 {
   "version": 1,
-  "activeNetwork": "preprod",
+  "activeNetwork": "undeployed",
   "wallets": {
     "preprod": {
       "seed": "d7482c7f7d36857025383857a54790da6863d4046f661aa95aeadde3940f2643",
       "createdAt": "2026-08-16T02:15:07.362Z"
     }
   },
-  "deployments": {}
+  "deployments": {
+    "undeployed": {
+      "address": "e21c8653fc074e70e367461a22b11b831793cb9e8d533e9bc5ce5b171ab447b8",
+      "deployer": "mn_addr_undeployed1h3ssm5ru2t6eqy4g3she78zlxn96e36ms6pq996aduvmateh9p9sk96u7s",
+      "deployedAt": "2026-08-17T10:22:14.462Z"
+    }
+  }
 }
