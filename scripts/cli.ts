@@ -24,14 +24,14 @@ import { CompiledContract } from '@midnight-ntwrk/midnight-js-protocol/compact-j
 globalThis.WebSocket = WebSocket;
 
 // Must match the privateStateId used at deploy time so the CLI reconnects to
-// the same private state. The counter contract has no witnesses (empty state).
-const PRIVATE_STATE_ID = 'helloWorldPrivateState';
+// the same private state.
+const PRIVATE_STATE_ID = 'secretSantaPrivateState';
 
 const { network, config: networkConfig } = resolveNetwork();
 const SEED = getOrCreateSeed(network);
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const zkConfigPath = path.resolve(__dirname, '..', 'contracts', 'managed', 'counter');
+const zkConfigPath = path.resolve(__dirname, '..', 'contracts', 'managed', 'secret_santa');
 
 // Load compiled contract
 const contractPath = path.join(zkConfigPath, 'contract', 'index.js');
@@ -42,9 +42,9 @@ if (!fs.existsSync(contractPath)) {
   process.exit(1);
 }
 
-const Counter = await import(pathToFileURL(contractPath).href);
+const SecretSanta = await import(pathToFileURL(contractPath).href);
 
-const compiledContract = CompiledContract.make('counter', Counter.Contract).pipe(
+const compiledContract = CompiledContract.make('secret_santa', SecretSanta.Contract).pipe(
   CompiledContract.withVacantWitnesses,
   CompiledContract.withCompiledFileAssets(zkConfigPath),
 );
@@ -80,7 +80,7 @@ async function createProviders(walletCtx: WalletContext) {
 
   return {
     privateStateProvider: levelPrivateStateProvider({
-      privateStateStoreName: 'counter-state',
+      privateStateStoreName: 'secret-santa-state',
       accountId,
       privateStoragePasswordProvider: () => privateStatePassword,
     }),
@@ -92,11 +92,23 @@ async function createProviders(walletCtx: WalletContext) {
   };
 }
 
+// Helper to convert hex address string or text to 32-byte Uint8Array
+function parseAddress32(input: string): Uint8Array {
+  const clean = input.trim().replace(/^0x/, '');
+  const buf = Buffer.alloc(32, 0);
+  if (/^[0-9a-fA-F]{64}$/.test(clean)) {
+    Buffer.from(clean, 'hex').copy(buf);
+  } else {
+    Buffer.from(clean, 'utf-8').copy(buf);
+  }
+  return new Uint8Array(buf);
+}
+
 // ─── Main CLI ──────────────────────────────────────────────────────────────────
 
 async function main() {
   console.log('\n╔══════════════════════════════════════════════════════════════╗');
-  console.log('║                   mn-demo CLI                           ║');
+  console.log('║               Private Secret Santa CLI                       ║');
   console.log('╚══════════════════════════════════════════════════════════════╝\n');
 
   const rl = createInterface({ input: stdin, output: stdout });
@@ -135,14 +147,11 @@ async function main() {
     // Persist sync state so the next run doesn't have to redo this work.
     await persistWalletState(network, walletCtx);
     const balance = state.unshielded.balances[unshieldedToken().raw] ?? 0n;
+    const address = walletCtx.unshieldedKeystore.getBech32Address();
+    console.log(`  Wallet:  ${address}`);
     console.log(`  Balance: ${balance.toLocaleString()} tNight\n`);
 
-    // Surface a faucet hint when a public-network wallet has 0 tNIGHT.
-    // Reads (option 2) work without funds, but writes (option 1) need DUST
-    // generated from registered NIGHT — without this hint the next failure
-    // mode is a confusing "Insufficient Funds" deep inside the tx builder.
     if (balance === 0n && network !== 'undeployed' && networkConfig.faucet) {
-      const address = walletCtx.unshieldedKeystore.getBech32Address();
       console.log('  ⚠ Wallet has no tNight. Fund it from the faucet to send transactions:');
       console.log(`     ${networkConfig.faucet}`);
       console.log(`     Wallet address: ${address}\n`);
@@ -165,22 +174,24 @@ async function main() {
     let running = true;
     while (running) {
       console.log('─── Menu ───────────────────────────────────────────────────────');
-      console.log('  1. Store a message');
-      console.log('  2. Read current message');
-      console.log('  3. Check wallet balance');
-      console.log('  4. Exit\n');
+      console.log('  1. Register as a participant');
+      console.log('  2. Prove private assignment (Zero-Knowledge)');
+      console.log('  3. Query contract state');
+      console.log('  4. Check wallet balance');
+      console.log('  5. Exit\n');
 
       const choice = await rl.question('  Your choice: ');
 
       switch (choice.trim()) {
         case '1': {
-          const message = await rl.question('  Enter your message: ');
-          console.log('\n  Submitting transaction (this may take 30-60 seconds)...');
+          const userAddrStr = await rl.question(`  Enter address to register (leave blank for your address): `);
+          const targetBytes = parseAddress32(userAddrStr || address.toString());
+          console.log('\n  Submitting registration transaction (generating ZK proof)...');
           try {
-            const tx = await deployed.callTx.storeMessage(message);
-            console.log(`\n  ✅ Message stored: "${message}"`);
+            const tx = await deployed.callTx.register(targetBytes);
+            console.log(`\n  ✅ Registered successfully on-chain!`);
             console.log(`  Transaction ID: ${tx.public.txId}`);
-            console.log(`  Block height: ${tx.public.blockHeight}\n`);
+            console.log(`  Block height:   ${tx.public.blockHeight}\n`);
           } catch (error) {
             console.error('\n  ❌ Failed:', error instanceof Error ? error.message : error);
           }
@@ -188,16 +199,22 @@ async function main() {
         }
 
         case '2': {
-          console.log('\n  Reading message from blockchain...');
+          const myAddrStr = await rl.question(`  Enter your address (leave blank for your address): `);
+          const assignedToStr = await rl.question('  Enter assigned giftee address (private witness): ');
+          if (!assignedToStr.trim()) {
+            console.log('  ❌ Assigned address cannot be empty.');
+            break;
+          }
+          const myBytes = parseAddress32(myAddrStr || address.toString());
+          const assignedBytes = parseAddress32(assignedToStr);
+
+          console.log('\n  Generating Zero-Knowledge proof and submitting on-chain...');
           try {
-            const contractState = await providers.publicDataProvider.queryContractState(deployment.address);
-            if (contractState) {
-              const ledgerState = Counter.ledger(contractState.data);
-              const message = Buffer.from(ledgerState.message).toString();
-              console.log(`\n  📋 Current message: "${message}"\n`);
-            } else {
-              console.log('\n  📋 No message found (contract state empty)\n');
-            }
+            const tx = await deployed.callTx.receive_assignment(myBytes, assignedBytes);
+            console.log(`\n  ✅ Assignment proven on-chain!`);
+            console.log(`  🔒 Private Witness "${assignedToStr.trim()}" was NOT leaked to the ledger.`);
+            console.log(`  Transaction ID: ${tx.public.txId}`);
+            console.log(`  Block height:   ${tx.public.blockHeight}\n`);
           } catch (error) {
             console.error('\n  ❌ Failed:', error instanceof Error ? error.message : error);
           }
@@ -205,22 +222,41 @@ async function main() {
         }
 
         case '3': {
+          console.log('\n  Querying contract state from Midnight indexer...');
+          try {
+            const contractState = await providers.publicDataProvider.queryContractState(deployment.address);
+            if (contractState) {
+              const ledgerState = SecretSanta.ledger(contractState.data);
+              console.log('\n  📋 Contract Ledger:');
+              console.log('  Participants map size:', ledgerState.participants ? (ledgerState.participants.size ?? 'Active') : 'Active');
+              console.log('  Received assignment map size:', ledgerState.received_assignment ? (ledgerState.received_assignment.size ?? 'Active') : 'Active');
+              console.log('');
+            } else {
+              console.log('\n  📋 Contract state is empty / uninitialized\n');
+            }
+          } catch (error) {
+            console.error('\n  ❌ Failed:', error instanceof Error ? error.message : error);
+          }
+          break;
+        }
+
+        case '4': {
           console.log('\n  Checking balance...');
           const currentState = await walletCtx.wallet.waitForSyncedState();
           const currentBalance = currentState.unshielded.balances[unshieldedToken().raw] ?? 0n;
           const dustBalance = currentState.dust.balance(new Date());
           console.log(`\n  tNight: ${currentBalance.toLocaleString()}`);
-          console.log(`  DUST: ${dustBalance.toLocaleString()}\n`);
+          console.log(`  DUST:   ${dustBalance.toLocaleString()}\n`);
           break;
         }
 
-        case '4':
+        case '5':
           running = false;
           console.log('\n  👋 Goodbye!\n');
           break;
 
         default:
-          console.log('\n  ❌ Invalid choice. Please enter 1-4.\n');
+          console.log('\n  ❌ Invalid choice. Please enter 1-5.\n');
       }
     }
 

@@ -23,9 +23,8 @@ import { CompiledContract } from '@midnight-ntwrk/midnight-js-protocol/compact-j
 // @ts-expect-error Required for wallet sync
 globalThis.WebSocket = WebSocket;
 
-// Identifier under which this contract's private state is stored. The
-// counter contract has no witnesses, so its private state is empty ({}).
-const PRIVATE_STATE_ID = 'helloWorldPrivateState';
+// Identifier under which this contract's private state is stored.
+const PRIVATE_STATE_ID = 'secretSantaPrivateState';
 
 // ─── Network configuration ─────────────────────────────────────────────────────
 //
@@ -66,7 +65,7 @@ async function waitForProofServer(maxAttempts = 60, delayMs = 2000): Promise<boo
 // ─── Compiled contract loading ─────────────────────────────────────────────────
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const zkConfigPath = path.resolve(__dirname, '..', 'contracts', 'managed', 'counter');
+const zkConfigPath = path.resolve(__dirname, '..', 'contracts', 'managed', 'secret_santa');
 const contractPath = path.join(zkConfigPath, 'contract', 'index.js');
 
 if (!fs.existsSync(contractPath)) {
@@ -74,9 +73,9 @@ if (!fs.existsSync(contractPath)) {
   process.exit(1);
 }
 
-const Counter = await import(pathToFileURL(contractPath).href);
+const SecretSanta = await import(pathToFileURL(contractPath).href);
 
-const compiledContract = CompiledContract.make('counter', Counter.Contract).pipe(
+const compiledContract = CompiledContract.make('secret_santa', SecretSanta.Contract).pipe(
   CompiledContract.withVacantWitnesses,
   CompiledContract.withCompiledFileAssets(zkConfigPath),
 );
@@ -112,7 +111,7 @@ async function createProviders(walletCtx: WalletContext) {
 
   return {
     privateStateProvider: levelPrivateStateProvider({
-      privateStateStoreName: 'counter-state',
+      privateStateStoreName: 'secret-santa-state',
       accountId,
       privateStoragePasswordProvider: () => privateStatePassword,
     }),
@@ -145,10 +144,15 @@ async function main() {
   console.log('  ℹ  This may take several minutes depending on network size.');
   console.log('     RPC disconnection messages during sync are normal and can be safely ignored.\n');
   const syncStart = Date.now();
-  const syncInterval = setInterval(() => {
+  const syncInterval = setInterval(async () => {
     const elapsed = Math.round((Date.now() - syncStart) / 1000);
     process.stdout.write(`\r  ⏳ Still syncing... (${elapsed}s elapsed)   `);
-  }, 5000);
+    try {
+      await persistWalletState(network, walletCtx);
+    } catch {
+      // ignore transient serialization during early sync
+    }
+  }, 10000);
   const state = await walletCtx.wallet.waitForSyncedState();
   clearInterval(syncInterval);
   process.stdout.write('\r  ✓ Synced with network.                                      \n');
