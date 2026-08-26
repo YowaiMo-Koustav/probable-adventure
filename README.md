@@ -6,7 +6,7 @@
 ---
 
 ## Live Demo
-- **Live URL:** [Deploy on Vercel/Netlify - Add Live URL Here]
+- **Live URL:** [https://probable-adventure-liard.vercel.app/](https://probable-adventure-liard.vercel.app/)
 - **Demo Video:** [Add YouTube / Loom Video Link Here]
 
 ---
