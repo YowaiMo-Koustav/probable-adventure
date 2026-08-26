@@ -34,22 +34,18 @@ export const SecretSanta: React.FC = () => {
     },
   ]);
 
-  const isUserRegistered = participants.some((p) => p.address === unshieldedAddress);
-  const userRecord = participants.find((p) => p.address === unshieldedAddress);
+  const activeAddress = unshieldedAddress || 'mn_addr_preprod1user789demo456abcdef1234567890abcdef';
+  const isUserRegistered = participants.some((p) => p.address === activeAddress);
+  const userRecord = participants.find((p) => p.address === activeAddress);
 
   // Handle Register
   const handleRegister = async () => {
-    if (!unshieldedAddress) {
-      setErrorMessage('Please connect your Lace wallet first.');
-      return;
-    }
-
     setLoading(true);
     setErrorMessage(null);
     setLastResult(null);
 
     try {
-      const result = await secretSantaService.register(unshieldedAddress, api, (msg) =>
+      const result = await secretSantaService.register(activeAddress, api, (msg) =>
         setProgressStatus(msg)
       );
 
@@ -60,7 +56,7 @@ export const SecretSanta: React.FC = () => {
         setParticipants((prev) => [
           ...prev,
           {
-            address: unshieldedAddress,
+            address: activeAddress,
             registeredAt: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
             hasAssignment: false,
             txId: result.txId,
@@ -77,12 +73,8 @@ export const SecretSanta: React.FC = () => {
 
   // Handle Prove Assignment
   const handleProveAssignment = async () => {
-    if (!unshieldedAddress) {
-      setErrorMessage('Please connect your Lace wallet first.');
-      return;
-    }
     if (!assignedToInput.trim()) {
-      setErrorMessage('Please enter an assigned giftee address to prove.');
+      setErrorMessage('Please enter or paste an assigned giftee address to prove.');
       return;
     }
 
@@ -92,7 +84,7 @@ export const SecretSanta: React.FC = () => {
 
     try {
       const result = await secretSantaService.receiveAssignment(
-        unshieldedAddress,
+        activeAddress,
         assignedToInput.trim(),
         api,
         (msg) => setProgressStatus(msg)
@@ -103,7 +95,7 @@ export const SecretSanta: React.FC = () => {
       // Mark user as having verified assignment
       setParticipants((prev) =>
         prev.map((p) =>
-          p.address === unshieldedAddress
+          p.address === activeAddress
             ? {
                 ...p,
                 hasAssignment: true,
@@ -120,6 +112,10 @@ export const SecretSanta: React.FC = () => {
       setLoading(false);
       setProgressStatus(null);
     }
+  };
+
+  const handleFillSample = () => {
+    setAssignedToInput('mn_addr_preprod1bob321uvw654fedcba0987654321fedcba');
   };
 
   return (
@@ -205,7 +201,7 @@ export const SecretSanta: React.FC = () => {
           <button
             className="btn btn-primary"
             onClick={handleRegister}
-            disabled={loading || !isConnected || isUserRegistered}
+            disabled={loading || isUserRegistered}
           >
             {isUserRegistered ? 'Already Registered On-Chain' : 'Register Participant (Circuit 1)'}
           </button>
@@ -234,21 +230,38 @@ export const SecretSanta: React.FC = () => {
           </p>
 
           <div className="input-group">
-            <label className="input-label">Assigned Giftee (Private Witness Address)</label>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.4rem' }}>
+              <label className="input-label" style={{ margin: 0 }}>Assigned Giftee (Private Witness Address)</label>
+              <button
+                type="button"
+                onClick={handleFillSample}
+                style={{
+                  background: 'rgba(99, 102, 241, 0.15)',
+                  border: '1px solid rgba(99, 102, 241, 0.3)',
+                  color: '#a5b4fc',
+                  padding: '2px 8px',
+                  borderRadius: '4px',
+                  fontSize: '0.75rem',
+                  cursor: 'pointer'
+                }}
+              >
+                Fill Sample Address
+              </button>
+            </div>
             <input
               type="text"
               className="input-field"
               placeholder="e.g. mn_addr_preprod1bob321uvw654fedcba0987654321fedcba"
               value={assignedToInput}
               onChange={(e) => setAssignedToInput(e.target.value)}
-              disabled={loading || !isConnected}
+              disabled={loading}
             />
           </div>
 
           <button
             className="btn btn-primary"
             onClick={handleProveAssignment}
-            disabled={loading || !isConnected || !assignedToInput.trim()}
+            disabled={loading || !assignedToInput.trim()}
           >
             Generate & Submit ZK Proof (Circuit 2)
           </button>

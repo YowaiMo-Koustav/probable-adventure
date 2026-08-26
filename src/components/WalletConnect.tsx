@@ -121,15 +121,29 @@ export const WalletConnect: React.FC<WalletConnectProps> = () => {
 
           <div className="info-row">
             <span className="info-label">tNIGHT Balance</span>
-            <span className="info-value highlight-purple">{nightBalance} tNIGHT</span>
+            <span className="info-value highlight-purple">{nightBalance || '0'} tNIGHT</span>
           </div>
 
           <div className="info-row">
             <span className="info-label">DUST Balance</span>
-            <span className="info-value highlight-cyan">{dustBalance} DUST</span>
+            <span className="info-value highlight-cyan">{dustBalance || '0'} DUST</span>
           </div>
 
-          <div style={{ marginTop: '1.5rem' }}>
+          {(nightBalance === '0' || !nightBalance) && (
+            <div style={{ marginTop: '0.75rem', fontSize: '0.75rem', color: 'var(--text-muted)', background: 'rgba(255, 255, 255, 0.03)', padding: '0.5rem', borderRadius: 'var(--radius-sm)' }}>
+              Need test tokens?{' '}
+              <a
+                href="https://midnight-tmnight-preprod.nethermind.dev"
+                target="_blank"
+                rel="noreferrer"
+                style={{ color: 'var(--accent-cyan)', textDecoration: 'underline' }}
+              >
+                Get tNIGHT from Preprod Faucet &rarr;
+              </a>
+            </div>
+          )}
+
+          <div style={{ marginTop: '1.25rem' }}>
             <button className="btn btn-secondary" onClick={disconnectWallet}>
               Disconnect Wallet
             </button>
