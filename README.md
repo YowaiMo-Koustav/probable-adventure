@@ -7,7 +7,9 @@
 
 ## Live Demo
 - **Live URL:** [https://probable-adventure-liard.vercel.app/](https://probable-adventure-liard.vercel.app/)
-- **Demo Video:** [Add YouTube / Loom Video Link Here]
+- **Demo Video:** [https://youtu.be/zrMHebgm7QM](https://youtu.be/zrMHebgm7QM)
+
+[![Midnight Secret Santa Demo Video](https://img.youtube.com/vi/zrMHebgm7QM/maxresdefault.jpg)](https://youtu.be/zrMHebgm7QM)
 
 ---
 
